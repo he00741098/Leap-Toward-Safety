@@ -1,3 +1,4 @@
+$(".question").hide();
 var player; 
 var playerDirection; 
 var playerMode; 
@@ -14,6 +15,7 @@ var jumpSound;
 var pickupSound; 
 var crashSound; 
 var doorOpeningSound; 
+var answering = false;
 
 function playerControl() {
   if (playerMode == 'move') {
@@ -74,17 +76,25 @@ function playerControl() {
       player.velocity.y = 0;
     }
   }
-
+//console.log(answering);
+	if(!answering){
+		
   player.overlap(appleGroup, pickup);
-
+	
+	}
+	//console.log(answering);
   if (door.getAnimationLabel() == 'opened') {
 
     player.overlap(door, escape);
   }
 }
 
-
+var avatar;
+var appler;
 function pickup(player, apple) {
+	answering = true;
+	avatar = player;
+	appler = apple;
   var quotes = [
   "What is one of the three steps to do in an earthquake when you are in a building? a)run b)hold c)yell/scream",
   "How many small earthquakes occur in a year? a)10000 b)20000 c)30000 d)40000",
@@ -92,18 +102,43 @@ function pickup(player, apple) {
     "How long does an average earthquake last? a)30 seconds b)1 minutes c) 2 minutes d)3 minutes",
     "All earthquake can change the length of day? a)False b)True",
     "What is the name of the Earthquake zone in Oregon? a)Ring of Fire b)Cascadia subduction zone c)Mount Hood subduction zone",
-    "How to best prepare for water before an earthquake? a)Not prepare and depend on your friendm b)Life straw",
+    "How to best prepare for water before an earthquake? a)Not prepare and depend on your friend b)Buy water from store beforehand c)life straw",
     "What is one of the three steps to do in an earthquake when you are in a building? a)run b)drop c)yell/scream",
    'What is one of the three steps to do in an earthquake when you are in a building? a)run b)cover c)yell/scream',
+    'From where shouldn’t you retrieve water if yours is tainted? a)Water heaters b)Radiators c)Canned vegetables d)Toilet tank',
+    'How long after a major earthquake can aftershocks continue to happen? a)Hours b)Weeks c)Days d)Months',
+    'If you see a large fire you should: a)Leave immediately b)Call fire department and leave immediately afterwards. c)Try to put it out d)Call for help and wait for fire department to arrive',
+    'What does CERT stand for? a)Community Experimental Research Team b)Community Emergency Response Team c)Central Emergency Response Terminal d)Controlled Evacuation and Response Tactics',
+    'How much water should you have in your home emergency kit? a)3 gallons per person per day b)1 gallon per person per day c)1 gallon per every 2 people per day d)3 gallons per family per day',
+    'How often should you replace perishable items in your emergency kit such as water, food, meds, and batteries? a)Every 4 months b)Every year c)Every 6 months d)Every 2 years',
+    'How long can you keep frozen foods in the freezer if the door is closed? a)Hours b)A few days c)One nigh d)A week',
+    'More people are injured or killed by falling furniture than building damage. a)False b)True',
+    'To where should you evacuate if near a large body of water? a)The closest shelter b)Higher ground c)The nearest tall tree d)Your car',
+    'When indoors during an earthquake, the safest place to be is: a)In a doorway b)Under a sturdy furniture c)In your bedroom',
+    'If you are outside during an earthquake you should seek shelter in a building. a)True b)False',
+    'A good indicator of an impending earthquake is: a)Hot,dry weather b)Neither of these c)Unsettled pet',
+    'If an earthquake hits while driving you should: a)Drive quickly away from the earthquake b)Pull over and stay in your car c)Pull over and get out of your car',
+    'The most common hazard after an earthquake is: a)Tsunami b)Fire c)Sewer back up'
 ];
 
-  var q = window.prompt(quotes[Math.floor( Math.random() * quotes.length) ]);
-  if(q == 'b'){
+	$("#prompt").html(quotes[Math.floor( Math.random() * quotes.length) ]);
+	$(".question").show();
+	$("#submit").click(next);
+		  
+}
+var position = 0;
+function next(){
+	var q = $("#answer").val(); 
+	if(q.substring(position,position+1) == 'b'){
     appleCount += 1;
+		console.log(appleCount);
   }else{ 
     appleCount+=0;
+		console.log(q);
     alert("Nope, the correct answer is b");
-    gameover();
+    
+		gameover();
+		
   }
   
   if ((appleCount%3)==0) {
@@ -113,9 +148,12 @@ function pickup(player, apple) {
 
   pickupSound.play();
 
-  apple.remove();
-}
+  appler.remove();
+	answering = false;
 
+	$(".question").hide();
+$("#answer").html("<button id='submit'>Submit</button>");
+	}
 
 
 function crash(punch, block) {
@@ -345,7 +383,7 @@ function drawEscaped() {
   image(escapedImage, camera.position.x - 177, height / 2 - 20);
   text('Click the Mouse to Go to Next Level', camera.position.x, 330);
 }
-
+var setting = false;
 function mouseClicked() {
   if (gameMode == 'gameover') {
     player.remove();
@@ -358,7 +396,8 @@ function mouseClicked() {
     gameSetup();
     loop();
   }
-  else if(gameMode == 'escaped'){
+  else if(gameMode == 'escaped' && !setting){
+		setting = true;
     player.remove();
     door.remove();
     blueBlockGroup.removeSprites();
@@ -388,67 +427,125 @@ function createArray(Y, X) {
 
 //var newStageLayout = createArray(10, 68);
 function  newGameCreate(){
+	
 	var newStageLayout = createArray(10, 68);
 	//console.log(newStageLayout)
-	var ran = Math.floor(Math.random()*(newStageLayout.length-2));
-	newStageLayout[ran][0] = 7;
-	for(i = 0; i<newStageLayout.length-ran; i++){
-		newStageLayout[i][0] = 1;
-	}
 	
+	var ran = Math.floor(Math.random()*(newStageLayout.length-2))+2;
+	newStageLayout[ran][0] = 7;
 	newStageLayout[ran-2][0]=2;
+	//more = easier
+	var difficulty = 2;
+	for(h = 0; h<difficulty;h++){
 	var max_X_move = 4;
 	var max_Y_move = 2;
 	var Y_fall = -4;
 	var playerGenPosX = 0;
 	var playerGenPosY = ran-1;
+	var stoneFallDistance = 4;
 var bob = true;
 	while(bob) {
-		
       var randomX = Math.floor(Math.random()*max_X_move+1)+playerGenPosX;
 			var randomY= Math.floor(Math.random()*max_Y_move);
-			while((randomY+playerGenPosY > 10) || randomY>max_Y_move){
+			while((randomY+playerGenPosY > newStageLayout.length) || playerGenPosY>newStageLayout.length-max_Y_move){
 				randomY--;
+				playerGenPosY--;
 			}
-		while(playerGenPosY-randomY<=1){
+		while(playerGenPosY+randomY<=1){
 			
-			y++;
+			randomY++;
 		
 		}
-		if(randomY>max_Y_move){
-			randomY= max_Y_move-1;
-		}
+
+		
 		//console.log(randomX);
 		//console.log(randomY);
 		if(randomX<newStageLayout[0].length){
-			newStageLayout[randomY][randomX] = 1;
+			//console.log(randomY + ", "+playerGenPosY + ", "+playerGenPosX)
+			newStageLayout[randomY+playerGenPosY][randomX] = 7;
 			playerGenPosX = randomX;
-			playerGenPosY = randomY;
+			playerGenPosY = randomY+playerGenPosY;
 		}else{bob = false;}
+		
+	
+	
+	}
+	}
+
+
+
+	
+	//console.log(newStageLayout)
+	var apples = 0
+	var max_apples = 3;
+	var apples_distance = 10;
+	var last_i = -1;
+	var genDoor = false;
+	for(i = 0; i<newStageLayout[0].length-1; i++){
+		var applePlaced = false;
+		var rockPlaced = false;
+		for(k = 2; k<newStageLayout.length-2; k++){
+			if(i>2){
+			if(!rockPlaced && newStageLayout[k+1][i]==7 && apples <max_apples){
+				if(i-last_i>=apples_distance){
+				newStageLayout[k][i]=4;
+				apples++;
+				last_i = i;
+					applePlaced = true;
+				}else if(i==-1){
+					last_i = i;
+				}
+			}else if(k-stoneFallDistance>0 && newStageLayout[k][i]==7 && !applePlaced){
+				random = Math.floor(Math.random()*10);
+				//console.log("Random Num: "+random);
+				if(random==1){
+				newStageLayout[k-stoneFallDistance][i]=3;
+				rockPlaced = true;
+				}
+			}
+
+
+
+if(!genDoor && newStageLayout[k+1][i]==7 && newStageLayout[0].length - i<7){
+	newStageLayout[k+1][i]=5;
+	//console.log("success, "+i+", "+(k+1));
+	genDoor=true;
+}
+
+
+				
+			}
 		}
-	console.log(newStageLayout)
+		
+	}
+	for(i = 0; i<newStageLayout[0].length; i++){
+	for(k=1; k< newStageLayout.length; k++){
+					if(newStageLayout[k-1][i]==1 || newStageLayout[k-1][i]==7){
+				newStageLayout[k][i] = 7;
+				console.log("placed dirt");
+			}
+
+		
+	}
+	
+}
+
+var print = "";
+	for(i = 0; i<newStageLayout.length; i++){
+	for(k=0; k< newStageLayout[0].length; k++){
+	print+=newStageLayout[i][k];
+	}
+	print+="\n";
+	}
+console.log(print);
+	
 	return newStageLayout;
 }
 
 
-// g= Math.floor()(Math.random(1,3,6,7));
-// u= Math.floor()(Math.random(1,3,6,7));
-
-// var newStageLayout = [
-//   [g, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, g, g, g, g, g, g, g, g, g, g, g, g, g, g, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u],
-//   [g, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, g, g, g, g, g, g, g, g, g, g, g, g, g, g, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u],
-//   [g, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, u, g, g, g, g, g, g, g, g, g, g, g, g, g, g, u, u, u, u, u, u, 4, u, u, u, u, u, u, u, u],
-//   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0],
-//   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 7, 7, 7],
-//   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 7, 1, 1, 1, 1, 1],
-//   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 7, 1, 1, 1, 1, 1, 1],
-//   [1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 7, 1, 1, 1, 1, 1, 1, 1],
-//   [1, 7, 7, 7, 7, 7, 7, 7, 0, 0, 7, 7, 1, 1, 1, 1, 7, 7, 7, 0, 0, 7, 7, 7, 0, 7, 7, 1, 1, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1],
-// ];
-
-
 function newGameSetup() {
+	setting = false;
+	console.log("Generating new level...")
 	var newStageLayout = newGameCreate();
   blueBlockGroup = createGroup();
   grassBlockGroup = createGroup();

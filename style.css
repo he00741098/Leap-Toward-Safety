@@ -1,0 +1,33 @@
+.question {
+  display: block;
+  margin: auto;
+  width: 80%;
+  border: 1px solid black;
+  padding: 10px;
+  font-family: 'Muli', sans-serif;
+  margin-bottom: 10px;
+  outline: none;
+	position: absolute;
+	margin: auto;
+	background: rgba(76, 175, 80, 0.3);
+	width:98%;
+}
+#submit, #answer{
+	display: block;
+  margin: auto;
+  width: 50%;
+  border: 1px solid black;
+  padding: 10px;
+  font-family: 'Muli', sans-serif;
+  margin-bottom: 10px;
+  outline: none;
+	background: rgba(76, 175, 80, 0.3);
+	border-radius: 10px
+}
+#answer:hover{
+	background: rgba(76, 175, 80, 0.5);
+}
+#submit{
+	cursor: pointer;
+	background: rgba(76, 175, 80, 0.7);
+}
